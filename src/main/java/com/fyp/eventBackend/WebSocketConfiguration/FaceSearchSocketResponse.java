@@ -5,7 +5,15 @@ public class FaceSearchSocketResponse {
 	private String name;
 	private String objectToken;
 	private String imgString;
+	private float accuracy;
 	
+	
+	public float getAccuracy() {
+		return accuracy;
+	}
+	public void setAccuracy(float accuracy) {
+		this.accuracy = accuracy;
+	}
 	public String getName() {
 		return name;
 	}

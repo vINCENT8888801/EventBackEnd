@@ -1,6 +1,5 @@
 package com.fyp.eventBackend.WiseAPI;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonSetter;
 import com.fyp.eventBackend.WiseAPIResponseClass.Meta;
 

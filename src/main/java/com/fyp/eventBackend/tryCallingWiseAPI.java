@@ -326,7 +326,7 @@ public class tryCallingWiseAPI {
 			multipart.addFormField("appSecret", "0fcc6aa6bcd1978c45ed470310c501c4");
 			multipart.addFormField("imageBase64", base64image);
 			multipart.addFormField("returnType", Integer.toString(returnType));
-			
+
 			String responseString = multipart.finish().get(0);
 
 			System.out.println("SERVER REPLIED:");
@@ -397,7 +397,7 @@ public class tryCallingWiseAPI {
 		Date date1 = new Date();
 
 		try {
-			
+
 			MultipartUtility multipart = new MultipartUtility(requestURL, charset);
 
 			System.out.println(uniquenessId);
@@ -413,12 +413,10 @@ public class tryCallingWiseAPI {
 			String responseString = multipart.finish().get(0);
 			System.out.println(responseString);
 
-			
 			response = new ObjectMapper().readerFor(FaceSearchingResponse.class).readValue(responseString);
 
 			System.out.println("SERVER REPLIED:");
 
-			
 		} catch (IOException ex) {
 			System.err.println(ex);
 		} finally {
@@ -460,6 +458,8 @@ public class tryCallingWiseAPI {
 			byte[] bytes = new byte[(int) file.length()];
 			fileInputStreamReader.read(bytes);
 			encodedfile = new String(Base64.getEncoder().encode(bytes), "UTF-8");
+			fileInputStreamReader.close();
+
 		} catch (FileNotFoundException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

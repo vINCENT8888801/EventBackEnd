@@ -2,9 +2,6 @@ package com.fyp.eventBackend.WebSocketConfiguration;
 
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
-import java.text.SimpleDateFormat;
-import java.util.Base64;
-import java.util.Date;
 
 import javax.imageio.ImageIO;
 
@@ -39,6 +36,8 @@ public class WebSocketController {
 				//assign ObjToken
 				FaceSearchSocketResponse socketRes = new FaceSearchSocketResponse();
 				socketRes.setObjectToken(response.getResults().getObjectToken());
+				float x = response.getResults().getConfidence();
+				socketRes.setAccuracy(x);
 				
 				//getNameFromDatabase
 				if(response.getResults().getConfidence() > 0.65 && response.getResults().getObjectToken().equals(WISESampleData.WeiSengObjectToken)) {

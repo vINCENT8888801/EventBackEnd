@@ -7,7 +7,6 @@ import java.util.Map;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fyp.eventBackend.WiseAPIResponseClass.Face;
 import com.fyp.eventBackend.WiseAPIResponseClass.FailureReason;
 
 public class RemoveSelectedFaceFromDatabaseResponse extends WiseAPIResponseBase{

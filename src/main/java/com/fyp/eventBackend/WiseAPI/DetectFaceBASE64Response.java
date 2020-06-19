@@ -13,7 +13,6 @@ import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fyp.eventBackend.WiseAPIResponseClass.Face;
-import com.google.gson.JsonArray;
 
 //{"success":true,"code":"SUCCESS","message":"Success","size":1,"collection":[{"faces":[{"attributes":{"age":22,"gender":"Male"},"faceLocate":{"height":379,"left":485,"top":243,"width":208},"landmark":[{"x":547,"y":393},{"x":643,"y":394},{"x":596,"y":456},{"x":552,"y":528},{"x":639,"y":531}],"objectToken":"70AC50DD-D2E6-46A2-B6AF-FC01F7B120AA"}]}],"meta":{"requestId":"277e903b-99ad-468b-ab1f-6cf54c7b6eba","timestamp":1585150494484}}
 public class DetectFaceBASE64Response extends WiseAPIResponseBase{

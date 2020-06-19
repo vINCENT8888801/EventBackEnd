@@ -6,9 +6,6 @@ import java.util.List;
 import java.util.Map;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fyp.eventBackend.WiseAPIResponseClass.FailureReason;
-import com.fyp.eventBackend.WiseAPIResponseClass.Library;
 
 public class GetFaceDatabaseDetailResponse extends WiseAPIResponseBase{
 	
