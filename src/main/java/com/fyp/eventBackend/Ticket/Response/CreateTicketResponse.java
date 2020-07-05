@@ -25,6 +25,4 @@ public class CreateTicketResponse extends BasicHttpResponse{
 		this.ticket = ticket;
 	}
 
-	
-	
 }

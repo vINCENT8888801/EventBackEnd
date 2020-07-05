@@ -10,6 +10,8 @@ public class EditEventRequest {
 
 	private String time;
 	
+	private boolean unlimitedParticipant;
+	
 	private int maxAttendee;
 	
 	public int getId() {
@@ -43,5 +45,14 @@ public class EditEventRequest {
 	public void setMaxAttendee(int maxAttendee) {
 		this.maxAttendee = maxAttendee;
 	}
+
+	public boolean isUnlimitedParticipant() {
+		return unlimitedParticipant;
+	}
+
+	public void setUnlimitedParticipant(boolean unlimitedParticipant) {
+		this.unlimitedParticipant = unlimitedParticipant;
+	}
+	
 	
 }

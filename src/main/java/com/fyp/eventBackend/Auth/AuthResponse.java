@@ -1,8 +1,13 @@
 package com.fyp.eventBackend.Auth;
 
-public class AuthResponse {
+import com.fyp.eventBackend.Common.BasicHttpResponse;
+
+public class AuthResponse extends BasicHttpResponse{
 	
-	private final String jwt;
+	private  String jwt;
+	
+	public AuthResponse() {
+	}
 	
 	public AuthResponse(String jwt) {
 		this.jwt = jwt;
@@ -11,7 +16,5 @@ public class AuthResponse {
 	public String getJwt() {
 		return jwt;
 	}
-	
-	
 
 }

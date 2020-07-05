@@ -8,6 +8,7 @@ public class RegisterUserRequest {
     private String email;
     private String name;
     private String password;
+    private String image64bit;
     
     
 	public String getEmail() {
@@ -27,6 +28,12 @@ public class RegisterUserRequest {
 	}
 	public void setPassword(String password) {
 		this.password = password;
+	}
+	public String getImage64bit() {
+		return image64bit;
+	}
+	public void setImage64bit(String image64bit) {
+		this.image64bit = image64bit;
 	}
     
     

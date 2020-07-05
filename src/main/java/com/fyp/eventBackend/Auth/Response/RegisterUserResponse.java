@@ -1,10 +1,11 @@
 package com.fyp.eventBackend.Auth.Response;
 
+import com.fyp.eventBackend.Common.BasicHttpResponse;
 import com.fyp.eventBackend.Database.User;
 
-public class RegisterUserResponse {
+public class RegisterUserResponse extends BasicHttpResponse{
 	
-	User newUser;
+	private User newUser;
 
 	public User getNewUser() {
 		return newUser;

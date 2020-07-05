@@ -7,6 +7,7 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.Id;
+import javax.persistence.Lob;
 import javax.persistence.MapsId;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
@@ -20,12 +21,22 @@ public class Attendee {
 
 	@OneToMany(fetch = FetchType.LAZY, mappedBy = "attendee")
 	private List<Ticket> tickets = new ArrayList<Ticket>();
-
+	
+	@Column(name = "objectToken", nullable = true)
+	private String objectToken;
+	
+	@Column(name = "gender", nullable = true)
+	private String gender;
+	
+	@Column(name = "age", nullable = true)
+	private int age;
+	
+	@Lob
 	@Column(name = "image64bit", nullable = false)
-	private String image64bit;
+	private byte[] image64bit;
 
 	@OneToOne
-    @MapsId
+	@MapsId
 	private User user;
 
 	public Integer getId() {
@@ -52,12 +63,36 @@ public class Attendee {
 		this.user = user;
 	}
 
-	public String getImage64bit() {
+	public byte[] getImage64bit() {
 		return image64bit;
 	}
 
-	public void setImage64bit(String image64bit) {
+	public void setImage64bit(byte[] image64bit) {
 		this.image64bit = image64bit;
+	}
+
+	public String getObjectToken() {
+		return objectToken;
+	}
+
+	public void setObjectToken(String objectToken) {
+		this.objectToken = objectToken;
+	}
+
+	public String getGender() {
+		return gender;
+	}
+
+	public void setGender(String gender) {
+		this.gender = gender;
+	}
+
+	public int getAge() {
+		return age;
+	}
+
+	public void setAge(int age) {
+		this.age = age;
 	}
 
 }

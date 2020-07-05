@@ -8,23 +8,25 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.SequenceGenerator;
 
 @Entity
 public class Ticket {
 
 	@Id
-	@GeneratedValue(strategy = GenerationType.AUTO)
+	@GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "ticket_generator")
+	@SequenceGenerator(name = "ticket_generator", sequenceName = "ticket_seq")
 	@Column(name = "id", unique = true)
 	private Integer id;
 
 	@Column(unique = true, name = "ticketNo")
 	private String ticketNo;
 
-	@ManyToOne(fetch = FetchType.LAZY)
+	@ManyToOne(fetch = FetchType.EAGER)
 	@JoinColumn(name = "attendee_id")
 	private Attendee attendee;
 
-	@ManyToOne(fetch = FetchType.LAZY)
+	@ManyToOne(fetch = FetchType.EAGER)
 	@JoinColumn(name = "event_id")
 	private Event event;
 

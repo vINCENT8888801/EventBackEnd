@@ -7,12 +7,14 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.OneToOne;
+import javax.persistence.SequenceGenerator;
 
 @Entity // This tells Hibernate to make a table out of this class
 public class User {
 	
 	@Id
-	@GeneratedValue(strategy = GenerationType.AUTO)
+	@GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "user_generator")
+	@SequenceGenerator(name="user_generator", sequenceName = "user_seq", allocationSize=50)
 	@Column(name="id", unique=true)
 	private Integer id;
 

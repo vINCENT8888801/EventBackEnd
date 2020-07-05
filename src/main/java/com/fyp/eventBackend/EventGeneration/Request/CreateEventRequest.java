@@ -1,12 +1,13 @@
 package com.fyp.eventBackend.EventGeneration.Request;
 
-
 public class CreateEventRequest {
-	
+
 	private String name;
 
-	private String time;
-	
+	private String dateTime;
+
+	private boolean unlimitedParticipant;
+
 	private int maxAttendee;
 
 	public String getName() {
@@ -17,12 +18,12 @@ public class CreateEventRequest {
 		this.name = name;
 	}
 
-	public String getTime() {
-		return time;
+	public String getDateTime() {
+		return dateTime;
 	}
 
-	public void setTime(String time) {
-		this.time = time;
+	public void setDateTime(String dateTime) {
+		this.dateTime = dateTime;
 	}
 
 	public int getMaxAttendee() {
@@ -32,5 +33,13 @@ public class CreateEventRequest {
 	public void setMaxAttendee(int maxAttendee) {
 		this.maxAttendee = maxAttendee;
 	}
-	
+
+	public boolean isUnlimitedParticipant() {
+		return unlimitedParticipant;
+	}
+
+	public void setUnlimitedParticipant(boolean unlimitedParticipant) {
+		this.unlimitedParticipant = unlimitedParticipant;
+	}
+
 }

@@ -11,27 +11,36 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.OneToMany;
+import javax.persistence.SequenceGenerator;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 @Entity // This tells Hibernate to make a table out of this class
 public class Event {
 	
 	@Id
-	@GeneratedValue(strategy = GenerationType.AUTO)
+	@GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "event_generator")
+	@SequenceGenerator(name="event_generator", sequenceName = "event_seq")
 	@Column(name="id", unique=true)
 	private Integer id;
 	
 	@Column(name="name",nullable = false)
 	private String name;
 	
-	@Column(name="maxAttendee",nullable = false)
+	@Column(name="unlimitedParticipant",nullable = false)
+	private boolean unlimitedParticipant;
+	
+	@Column(name="maxAttendee",nullable = true)
 	private int maxAttendee;
 	
 	@Temporal(TemporalType.TIMESTAMP)
-	@Column(name="time",nullable = false)
-	private Date time;
+	@Column(name="datetime",nullable = false)
+	private Date datetime;
 	
+	
+	@JsonIgnore
 	@OneToMany (fetch = FetchType.LAZY, mappedBy = "event")
     private List<Ticket> tickets = new ArrayList<Ticket>(); 
 
@@ -51,12 +60,12 @@ public class Event {
 		this.name = name;
 	}
 
-	public Date getTime() {
-		return time;
+	public Date getDateTime() {
+		return datetime;
 	}
 
-	public void setTime(Date time) {
-		this.time = time;
+	public void setDateTime(Date time) {
+		this.datetime = time;
 	}
 
 	public List<Ticket> getTickets() {
@@ -73,6 +82,14 @@ public class Event {
 
 	public void setMaxAttendee(int maxAttendee) {
 		this.maxAttendee = maxAttendee;
+	}
+
+	public boolean isUnlimitedParticipant() {
+		return unlimitedParticipant;
+	}
+
+	public void setUnlimitedParticipant(boolean unlimitedParticipant) {
+		this.unlimitedParticipant = unlimitedParticipant;
 	}
 	
 	
