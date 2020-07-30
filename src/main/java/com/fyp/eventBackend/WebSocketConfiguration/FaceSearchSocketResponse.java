@@ -2,11 +2,15 @@ package com.fyp.eventBackend.WebSocketConfiguration;
 
 public class FaceSearchSocketResponse {
 	
+	
 	private String name;
+	private String gender;
+	private int age;
 	private String objectToken;
 	private String imgString;
 	private float accuracy;
-	
+	private int ticketId;
+	private String attendanceStatus;
 	
 	public float getAccuracy() {
 		return accuracy;
@@ -32,5 +36,31 @@ public class FaceSearchSocketResponse {
 	public void setImgString(String imgString) {
 		this.imgString = imgString;
 	}
+	
+	public int getTicketId() {
+		return ticketId;
+	}
+	public void setTicketId(int ticketId) {
+		this.ticketId = ticketId;
+	}
+	public String getGender() {
+		return gender;
+	}
+	public void setGender(String gender) {
+		this.gender = gender;
+	}
+	public int getAge() {
+		return age;
+	}
+	public void setAge(int age) {
+		this.age = age;
+	}
+	public String getAttendanceStatus() {
+		return attendanceStatus;
+	}
+	public void setAttendanceStatus(String attendanceStatus) {
+		this.attendanceStatus = attendanceStatus;
+	}
+	
 	
 }

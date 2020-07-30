@@ -12,6 +12,8 @@ import javax.persistence.MapsId;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 @Entity
 public class Attendee {
 
@@ -19,18 +21,19 @@ public class Attendee {
 	@Column(name = "id", unique = true)
 	private Integer id;
 
+	@JsonIgnore
 	@OneToMany(fetch = FetchType.LAZY, mappedBy = "attendee")
 	private List<Ticket> tickets = new ArrayList<Ticket>();
-	
+
 	@Column(name = "objectToken", nullable = true)
 	private String objectToken;
-	
+
 	@Column(name = "gender", nullable = true)
 	private String gender;
-	
+
 	@Column(name = "age", nullable = true)
 	private int age;
-	
+
 	@Lob
 	@Column(name = "image64bit", nullable = false)
 	private byte[] image64bit;

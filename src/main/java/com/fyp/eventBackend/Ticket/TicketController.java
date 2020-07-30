@@ -1,5 +1,6 @@
 package com.fyp.eventBackend.Ticket;
 
+import java.util.Base64;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
@@ -14,8 +15,12 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.fyp.eventBackend.CallWiseAPI;
+import com.fyp.eventBackend.Common.AttendanceStatusEnum;
+import com.fyp.eventBackend.Common.GenderEnum;
 import com.fyp.eventBackend.Common.RequestStatusEnum;
 import com.fyp.eventBackend.Common.SerlvetKeyConstant;
+import com.fyp.eventBackend.Common.UserRoleEnum;
 import com.fyp.eventBackend.Database.Attendee;
 import com.fyp.eventBackend.Database.AttendeeRepository;
 import com.fyp.eventBackend.Database.Event;
@@ -28,6 +33,9 @@ import com.fyp.eventBackend.Ticket.Request.CreateTicketRequest;
 import com.fyp.eventBackend.Ticket.Request.RegisterTicketRequest;
 import com.fyp.eventBackend.Ticket.Response.CreateTicketResponse;
 import com.fyp.eventBackend.Ticket.Response.RegisterTicketResponse;
+import com.fyp.eventBackend.Ticket.Response.RegisterWalkInResponse;
+import com.fyp.eventBackend.WebSocketConfiguration.FrontEndRequest.RegisterWalkInRequest;
+import com.fyp.eventBackend.WiseAPI.DetectFaceBASE64Response;
 
 @CrossOrigin("*")
 @RestController
@@ -65,7 +73,7 @@ public class TicketController {
 		}
 
 		if (!eventToBeAdded.isUnlimitedParticipant()
-				|| eventToBeAdded.getTickets().size() >= eventToBeAdded.getMaxAttendee()) {
+				&& eventToBeAdded.getTickets().size() >= eventToBeAdded.getMaxAttendee()) {
 			createTicketResponse.setStatus(RequestStatusEnum.FAILED.getValue());
 			createTicketResponse.setError("Event Full");
 			createTicketResponse.setError("Maximum participant for the event reached.");
@@ -101,11 +109,11 @@ public class TicketController {
 			@RequestHeader Map<String, String> headers, @RequestBody RegisterTicketRequest registerTicketRequest) {
 		String username = (String) httpServletRequest.getAttribute(SerlvetKeyConstant.EMAIL);
 		RegisterTicketResponse registerTicketResponse = new RegisterTicketResponse();
-
+		DetectFaceBASE64Response response = null;
 		User user = userRepository.findByEmail(username);
 		Attendee attendee = attendeeRepository.findById(user.getId()).get();
 		String ticketNo = registerTicketRequest.getTicketNo();
-
+		
 		if (!validateTicketFormat(ticketNo)) {
 			registerTicketResponse.setStatus(RequestStatusEnum.FAILED.getValue());
 			registerTicketResponse.setError("Invalid Ticket No");
@@ -114,6 +122,16 @@ public class TicketController {
 
 		if (attendee != null || !registerTicketResponse.getStatus().equals(RequestStatusEnum.FAILED.getValue())) {
 
+			String imageBase64String = "data:image/jpeg;base64," + new String(attendee.getImage64bit());
+			System.out.println(imageBase64String);
+
+			try {
+				response = CallWiseAPI.detectFaceBASE64(imageBase64String, 3);
+			} catch (Exception e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			
 			List<Ticket> tickets = ticketRepository.findByTicketNo(ticketNo);
 			System.out.println("size " + tickets.size());
 			Ticket ticket = tickets.get(0);
@@ -137,12 +155,22 @@ public class TicketController {
 				registerTicketResponse.setErrorMessage("You already registered for this event");
 			}
 			if (!RequestStatusEnum.FAILED.getValue().equals(registerTicketResponse.getStatus())) {
-
+				Event eventRegistered = ticket.getEvent();
+				
+				String objectToken = response.getFaces().get(0).getObjectToken();
+				try {
+					CallWiseAPI.addNewFaceToDatabase(eventRegistered.getLibraryId(), objectToken);
+				} catch (Exception e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				ticket.setObjectToken(objectToken);
 				ticket.setAttendee(attendee);
 				ticketRepository.save(ticket);
 
-				registerTicketResponse.setEventRegistered(ticket.getEvent());
+				registerTicketResponse.setEventRegistered(eventRegistered);
 				registerTicketResponse.setStatus(RequestStatusEnum.SUCCESS.getValue());
+
 			}
 
 		} else {
@@ -153,13 +181,59 @@ public class TicketController {
 
 		return ResponseEntity.ok(registerTicketResponse);
 	}
+	
+	@PostMapping("/ticket/registerwalkin")
+	public ResponseEntity<RegisterWalkInResponse> RegisterWalkIn(HttpServletRequest httpServletRequest,
+			@RequestHeader Map<String, String> headers, @RequestBody RegisterWalkInRequest registerWalkInRequest) {
+		String username = (String) httpServletRequest.getAttribute(SerlvetKeyConstant.EMAIL);
+		RegisterWalkInResponse response = new RegisterWalkInResponse();
+		
+		
+		
+		User newUser = new User();
+		// validation
+		if (registerWalkInRequest.getImage64bit() != null) {
+			newUser.setEmail(registerWalkInRequest.getEmail());
+			newUser.setName(registerWalkInRequest.getName());
+			newUser.setPassword(registerWalkInRequest.getPassword());
+			newUser.setRole(UserRoleEnum.ATTENDEE.getDBValue());
+			
+			
+			
+			userRepository.save(newUser);
+			Attendee newAttendee = new Attendee();
+			newAttendee.setUser(newUser);
+			newAttendee.setImage64bit(registerWalkInRequest.getImage64bit().getBytes());
+			newAttendee.setAge(registerWalkInRequest.getAge());
+			newAttendee.setGender(GenderEnum.getEnumwithValue(registerWalkInRequest.getGender()).getDBValue());
+			attendeeRepository.save(newAttendee);
+			response.setStatus(RequestStatusEnum.SUCCESS.getValue());
+		}else {
+			response.setStatus(RequestStatusEnum.FAILED.getValue());
+			response.setError("Illegal Request");
+		}
+		
+		
+		Event event = eventRepository.findById(registerWalkInRequest.getEventId()).get();
+		Ticket ticket = new Ticket();
+		Attendee attendee = attendeeRepository.findById(newUser.getId()).get();
+		
+		ticket.setAttendee(attendee);
+		ticket.setEvent(event);
+		ticket.setAttendanceStatus(AttendanceStatusEnum.PRESENT.getValue());
+		ticketRepository.save(ticket);
+	
+
+		return ResponseEntity.ok(response);
+	}
 
 	private boolean isUserRegistered(Event event, Attendee attendee) {
 		List<Ticket> tickets = event.getTickets();
-		for (Ticket ticket :tickets) {
+		for (Ticket ticket : tickets) {
 			if (ticket.getAttendee() != null) {
-				ticket.getAttendee().getId().equals(attendee.getId());
-				return true;
+				if( ticket.getAttendee().getId().equals(attendee.getId())) {
+					return true;
+				}
 			}
 		}
 		return false;

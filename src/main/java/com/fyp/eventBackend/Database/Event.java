@@ -26,6 +26,9 @@ public class Event {
 	@Column(name="id", unique=true)
 	private Integer id;
 	
+	@Column(name="libraryId", unique=true)
+	private String libraryId;
+	
 	@Column(name="name",nullable = false)
 	private String name;
 	
@@ -60,11 +63,11 @@ public class Event {
 		this.name = name;
 	}
 
-	public Date getDateTime() {
+	public Date getDatetime() {
 		return datetime;
 	}
 
-	public void setDateTime(Date time) {
+	public void setDatetime(Date time) {
 		this.datetime = time;
 	}
 
@@ -92,6 +95,14 @@ public class Event {
 		this.unlimitedParticipant = unlimitedParticipant;
 	}
 	
+
+	public String getLibraryId() {
+		return libraryId;
+	}
+
+	public void setLibraryId(String libraryId) {
+		this.libraryId = libraryId;
+	}
 	
 	
 }

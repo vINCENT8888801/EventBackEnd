@@ -26,9 +26,15 @@ public class Ticket {
 	@JoinColumn(name = "attendee_id")
 	private Attendee attendee;
 
+	@Column(name = "attendanceStatus")
+	private String attendanceStatus;
+
 	@ManyToOne(fetch = FetchType.EAGER)
 	@JoinColumn(name = "event_id")
 	private Event event;
+	
+	@Column(unique = true, name = "objectToken")
+	private String objectToken;
 
 	public Integer getId() {
 		return id;
@@ -62,4 +68,21 @@ public class Ticket {
 		this.event = event;
 	}
 
+	public String getAttendanceStatus() {
+		return attendanceStatus;
+	}
+
+	public void setAttendanceStatus(String attendanceStatus) {
+		this.attendanceStatus = attendanceStatus;
+	}
+
+	public String getObjectToken() {
+		return objectToken;
+	}
+
+	public void setObjectToken(String objectToken) {
+		this.objectToken = objectToken;
+	}
+
+	
 }

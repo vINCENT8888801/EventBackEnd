@@ -15,5 +15,7 @@ public interface TicketRepository extends JpaRepository<Ticket, Integer> {
 	@Query("SELECT u.ticketNo FROM Ticket u WHERE u.ticketNo IS NOT NULL")
     List<String> getAllTicketNo();
 	
+	Ticket findByObjectToken(String objectToken);
+	
 	List<Ticket> findByTicketNo(String ticketNo);
 }

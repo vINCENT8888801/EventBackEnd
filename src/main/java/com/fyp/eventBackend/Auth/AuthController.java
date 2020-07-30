@@ -1,7 +1,11 @@
 package com.fyp.eventBackend.Auth;
 
+import java.awt.image.BufferedImage;
+import java.io.ByteArrayInputStream;
+import java.util.Base64;
 import java.util.Map;
 
+import javax.imageio.ImageIO;
 import javax.servlet.http.HttpServletRequest;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,10 +21,17 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.fyp.eventBackend.CallWiseAPI;
+import com.fyp.eventBackend.DrawImageUtil;
+import com.fyp.eventBackend.FileUtil;
+import com.fyp.eventBackend.ImageUtil;
 import com.fyp.eventBackend.Auth.Request.DeleteUserRequest;
 import com.fyp.eventBackend.Auth.Request.RegisterUserRequest;
+import com.fyp.eventBackend.Auth.Request.ValidatePictureRequest;
 import com.fyp.eventBackend.Auth.Response.RegisterUserResponse;
+import com.fyp.eventBackend.Auth.Response.ValidatePictureResponse;
 import com.fyp.eventBackend.Auth.Response.ValidateUserResponse;
+import com.fyp.eventBackend.Common.GenderEnum;
 import com.fyp.eventBackend.Common.RequestStatusEnum;
 import com.fyp.eventBackend.Common.SerlvetKeyConstant;
 import com.fyp.eventBackend.Common.UserRoleEnum;
@@ -28,6 +39,7 @@ import com.fyp.eventBackend.Database.Attendee;
 import com.fyp.eventBackend.Database.AttendeeRepository;
 import com.fyp.eventBackend.Database.User;
 import com.fyp.eventBackend.Database.UserRepository;
+import com.fyp.eventBackend.WiseAPI.DetectFaceBASE64Response;
 
 @RestController
 public class AuthController {
@@ -64,15 +76,49 @@ public class AuthController {
 	public ResponseEntity<ValidateUserResponse> validateNewUser(@RequestBody RegisterUserRequest registerUserRequest) throws Exception {
 		ValidateUserResponse validateUserResponse = new ValidateUserResponse();
 		
+		validateUserResponse.setStatus(RequestStatusEnum.SUCCESS.getValue());
+		
 		if(userRepository.findByName(registerUserRequest.getName()) == null) {
 			validateUserResponse.setUniqueName(true);
+			
+		}else {
+			validateUserResponse.setStatus(RequestStatusEnum.FAILED.getValue());
+			validateUserResponse.setUniqueName(false);
 		}
-		
 		if(userRepository.findByEmail(registerUserRequest.getEmail()) == null) {
 			validateUserResponse.setUniqueEmail(true);
 		}
-		
+		else {
+			validateUserResponse.setStatus(RequestStatusEnum.FAILED.getValue());
+			validateUserResponse.setUniqueEmail(false);
+		}
 		return ResponseEntity.ok(validateUserResponse);
+	}
+	
+	@PostMapping("/authenticate/register/getObjToken")
+	public ResponseEntity<ValidatePictureResponse> getObjToken(@RequestBody ValidatePictureRequest validatePictureRequest) throws Exception {
+		ValidatePictureResponse validatePictureResponse = new ValidatePictureResponse();
+		
+		
+		String imageBase64String = "data:image/jpeg;base64," +validatePictureRequest.getImage64(); 
+		DetectFaceBASE64Response detectFaceBASE64Response = CallWiseAPI.detectFaceBASE64(imageBase64String, 3);
+		
+		if(detectFaceBASE64Response.getSize() > 0) {
+			byte[] imageBytes = javax.xml.bind.DatatypeConverter.parseBase64Binary(validatePictureRequest.getImage64());
+			BufferedImage img = ImageIO.read(new ByteArrayInputStream(imageBytes));
+			DrawImageUtil.drawBoundingBox(img, detectFaceBASE64Response.getFaces().get(0).getFaceLocate());
+			String imgString = ImageUtil.imgToBase64String(img, "png");
+			validatePictureResponse.setAge(detectFaceBASE64Response.getFaces().get(0).getAttributes().getAge());
+			String gender = GenderEnum.getEnumWithAPIValue(detectFaceBASE64Response.getFaces().get(0).getAttributes().getGender()).getValue();
+			validatePictureResponse.setGender(gender);
+			validatePictureResponse.setImage64bit(imgString);
+			validatePictureResponse.setObjToken(detectFaceBASE64Response.getFaces().get(0).getObjectToken());
+			validatePictureResponse.setStatus(RequestStatusEnum.SUCCESS.getValue());
+		}else {
+			validatePictureResponse.setStatus(RequestStatusEnum.FAILED.getValue());
+		}
+		
+		return ResponseEntity.ok(validatePictureResponse);
 	}
 
 	
@@ -87,11 +133,15 @@ public class AuthController {
 			newUser.setName(registerUserRequest.getName());
 			newUser.setPassword(registerUserRequest.getPassword());
 			newUser.setRole(UserRoleEnum.ATTENDEE.getDBValue());
-
+			
+			
+			
 			userRepository.save(newUser);
 			Attendee newAttendee = new Attendee();
 			newAttendee.setUser(newUser);
 			newAttendee.setImage64bit(registerUserRequest.getImage64bit().getBytes());
+			newAttendee.setAge(registerUserRequest.getAge());
+			newAttendee.setGender(GenderEnum.getEnumwithValue(registerUserRequest.getGender()).getDBValue());
 			attendeeRepository.save(newAttendee);
 			response.setStatus(RequestStatusEnum.SUCCESS.getValue());
 		}else {

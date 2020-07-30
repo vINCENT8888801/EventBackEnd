@@ -5,6 +5,9 @@ public class WiseAPIUtils {
 	public final static String APP_KEY = "0fc4029ea7bd337b81e8afb3b009b2be";
 	public final static String APP_SECRET = "0fcc6aa6bcd1978c45ed470310c501c4";
 	
+	//facelibrary
+	public final static String BLACKLIST_LIBRARY_ID = "19d85210-4ce8-482b-8c12-54b78925e54d";
+	
 	//POST
 	public final static String CREATE_FACE_DATABASE = "https://api-live.wiseai.tech/face/v2/library/create";
 	public final static String MODIFY_FACE_DATABASE = "https://api-live.wiseai.tech/face/v2/library/update";

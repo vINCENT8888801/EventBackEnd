@@ -1,10 +1,10 @@
-package com.fyp.eventBackend.Auth.Request;
+package com.fyp.eventBackend.WebSocketConfiguration.FrontEndRequest;
 
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 
-@JsonPOJOBuilder
-public class RegisterUserRequest {
+public class RegisterWalkInRequest {
 	
+	private int eventId;
     private String email;
     private String name;
     private String password;
@@ -13,6 +13,12 @@ public class RegisterUserRequest {
     private String gender;
     
     
+	public int getEventId() {
+		return eventId;
+	}
+	public void setEventId(int eventId) {
+		this.eventId = eventId;
+	}
 	public String getEmail() {
 		return email;
 	}

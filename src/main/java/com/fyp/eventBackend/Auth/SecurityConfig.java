@@ -53,6 +53,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         final CorsConfiguration config = new CorsConfiguration();
         
         http.csrf().disable().authorizeRequests().antMatchers("/authenticate/**").permitAll()
+        		.antMatchers("/socket/**").permitAll()
         		.anyRequest().authenticated()
                 .and().exceptionHandling().and().sessionManagement()
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS);

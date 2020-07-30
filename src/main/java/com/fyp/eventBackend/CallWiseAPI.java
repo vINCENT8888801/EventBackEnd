@@ -28,7 +28,7 @@ import com.fyp.eventBackend.WiseAPI.*;
 import com.fyp.eventBackend.WiseAPIResponseClass.FaceLocate;
 import com.fyp.eventBackend.WiseAPIResponseClass.WiseAPIUtils;
 
-public class tryCallingWiseAPI {
+public class CallWiseAPI {
 
 	// for method 1
 	// private static HttpURLConnection connection;
@@ -36,32 +36,32 @@ public class tryCallingWiseAPI {
 
 	public static void main(String[] args) throws Exception {
 
-		tryCallingWiseAPI obj = new tryCallingWiseAPI();
+		
 
 //		//Create New Library
 //		System.out.println("Testing 1 - Create New Library");
 //		obj.createFaceDatabase("testLib", Float.parseFloat("0.1"));
 
-		File f = new File("C:/Users/WeiSeng/Desktop/fyp/sample images/testimages/facebook image.jpg");
-		String encodestring = encodeFileToBase64Binary(f);
-		encodestring = "data:image/jpeg;base64," + encodestring;
-
-		System.out.println("BASE 64: " + encodestring);
-
-//		Detect face with draw bounding box and saving images		
-
-		FaceSearchingResponse response = faceSearching_BASE64(encodestring, WISESampleData.sampleDatabaseID);
-		FaceLocate location = response.getFaceLocate();
-		BufferedImage img = ImageIO.read(f);
-		Graphics2D g2d = img.createGraphics();
-		g2d.setColor(Color.RED);
-		g2d.setStroke(new BasicStroke(2));
-		g2d.drawRect(location.getLeft(), location.getTop(), location.getWidth(), location.getHeight());
-		g2d.dispose();
-		File savedFile = new File("C:/Users/WeiSeng/Desktop/fyp/sample images/resultImage/saveImg.jpg");
-		ImageIO.write(img, "jpg", savedFile);
-
+//		File f = new File("C:/Users/WeiSeng/Desktop/fyp/sample images/testimages/facebook image.jpg");
+//		String encodestring = FileUtil.encodeFileToBase64Binary(f);
+//		encodestring = "data:image/jpeg;base64," + encodestring;
 //
+//		System.out.println("BASE 64: " + encodestring);
+//
+////		Detect face with draw bounding box and saving images		
+//
+//		FaceSearchingResponse response = faceSearching_BASE64(encodestring, WISESampleData.sampleDatabaseID);
+//		FaceLocate location = response.getFaceLocate();
+//		BufferedImage img = ImageIO.read(f);
+//		Graphics2D g2d = img.createGraphics();
+//		g2d.setColor(Color.RED);
+//		g2d.setStroke(new BasicStroke(2));
+//		g2d.drawRect(location.getLeft(), location.getTop(), location.getWidth(), location.getHeight());
+//		g2d.dispose();
+//		File savedFile = new File("C:/Users/WeiSeng/Desktop/fyp/sample images/resultImage/saveImg.jpg");
+//		ImageIO.write(img, "jpg", savedFile);
+
+		AddNewFaceToDatabaseResponse response = addNewFaceToDatabase("99df65da-91c9-474b-98f2-9dc9fb7f21f5", "FCA48631-0134-4013-A5D0-4CBDD5AE9C99");
 
 //		GetListOfFaceDatabaseResponse response = getListOfFaceDatabase();
 //		Library lib = response.getLibraries().get(0);
@@ -190,7 +190,7 @@ public class tryCallingWiseAPI {
 		return responseBody;
 	}
 
-	public GetFaceDatabaseDetailResponse getFaceDatabaseDetail(String libraryId) throws Exception {
+	public static GetFaceDatabaseDetailResponse getFaceDatabaseDetail(String libraryId) throws Exception {
 
 		GetFaceDatabaseDetailResponse responseBody;
 
@@ -220,15 +220,18 @@ public class tryCallingWiseAPI {
 
 	}
 
-	public RemoveSelectedFaceFromDatabaseResponse removeSelectedFaceFromDatabase(String libraryId, String objectTokens)
+	public static RemoveSelectedFaceFromDatabaseResponse removeSelectedFaceFromDatabase(String libraryId, String objectTokens)
 			throws Exception {
 
 		RemoveSelectedFaceFromDatabaseResponse responseBody;
 
-		String json = new StringBuilder().append("{").append("\"libraryId\":\"" + libraryId + "\",")
-				.append("\"objectTokens\":\"" + objectTokens + "\",").append("{")
+		String json = new StringBuilder().append("{")
 				.append("\"appKey\":\"" + WiseAPIUtils.APP_KEY + "\",")
-				.append("\"appSecret\":\"" + WiseAPIUtils.APP_SECRET + "\",").toString();
+				.append("\"appSecret\":\"" + WiseAPIUtils.APP_SECRET + "\",")
+				.append("\"libraryId\":\"" + libraryId + "\",")
+				.append("\"objectTokens\": [ \"" + objectTokens + "\" ] ")
+				.append("}")
+				.toString();
 
 		System.out.println("JSON: " + json);
 
@@ -253,14 +256,17 @@ public class tryCallingWiseAPI {
 		return responseBody;
 	}
 
-	public AddNewFaceToDatabaseResponse addNewFaceToDatabase(String libraryId, String objectTokens) throws Exception {
+	public static AddNewFaceToDatabaseResponse addNewFaceToDatabase(String libraryId, String objectTokens) throws Exception {
 
 		AddNewFaceToDatabaseResponse responseBody;
 
-		String json = new StringBuilder().append("{").append("\"libraryId\":\"" + libraryId + "\",")
-				.append("\"objectTokens\":\"" + objectTokens + "\",").append("{")
+		String json = new StringBuilder()
+				.append("{")
 				.append("\"appKey\":\"" + WiseAPIUtils.APP_KEY + "\",")
-				.append("\"appSecret\":\"" + WiseAPIUtils.APP_SECRET + "\",").toString();
+				.append("\"appSecret\":\"" + WiseAPIUtils.APP_SECRET + "\",")
+				.append("\"libraryId\":\"" + libraryId + "\",")
+				.append("\"objectTokens\":[\"" + objectTokens + "\"]")
+				.append("}").toString();
 
 		System.out.println("JSON: " + json);
 
@@ -346,6 +352,46 @@ public class tryCallingWiseAPI {
 		return response;
 
 	}
+	
+	public static DetectFaceBASE64Response detectFaceBASE64WithFile(File imageFile, int returnType) throws Exception {
+
+		String charset = "UTF-8";
+		File uploadFile1 = new File("e:/Test/PIC1.JPG");
+		File uploadFile2 = new File("e:/Test/PIC2.JPG");
+		String requestURL = WiseAPIUtils.FACE_DETECTION;
+		Date date1 = new Date();
+		DetectFaceBASE64Response response = null;
+
+		try {
+			MultipartUtility multipart = new MultipartUtility(requestURL, charset);
+
+			multipart.addHeaderField("Accept", "application/json");
+			multipart.addHeaderField("Content-Type", "multipart/form-data");
+
+			multipart.addFormField("appKey", "0fc4029ea7bd337b81e8afb3b009b2be");
+			multipart.addFormField("appSecret", "0fcc6aa6bcd1978c45ed470310c501c4");
+			multipart.addFilePart("imageData", imageFile);
+			multipart.addFormField("returnType", Integer.toString(returnType));
+
+			String responseString = multipart.finish().get(0);
+
+			System.out.println("SERVER REPLIED:");
+
+			System.out.println(responseString);
+			response = new ObjectMapper().readerFor(DetectFaceBASE64Response.class).readValue(responseString);
+
+			System.out.println("ResquestID :" + response.getFaces());
+
+		} catch (IOException ex) {
+			System.err.println(ex);
+		} finally {
+			Date date2 = new Date();
+			long difference = date2.getTime() - date1.getTime();
+			System.out.println(difference);
+		}
+		return response;
+
+	}
 
 	public static void faceComparison_BASE64(String imageBase64One, String imageBase64Two) throws Exception {
 
@@ -384,7 +430,7 @@ public class tryCallingWiseAPI {
 
 	}
 
-	public static FaceSearchingResponse faceSearching_BASE64(String imageBase64One, String uniquenessId)
+	public static FaceSearchingResponse faceSearching_BASE64(String imageBase64One, String uniquenessId,int resultTop)
 			throws Exception {
 
 		FaceSearchingResponse response = null;
@@ -408,6 +454,7 @@ public class tryCallingWiseAPI {
 			multipart.addFormField("appSecret", WiseAPIUtils.APP_SECRET);
 			multipart.addFormField("imageBase64One", imageBase64One);
 			multipart.addFormField("uniquenessId", uniquenessId);
+			multipart.addFormField("resultTop", Integer.toString(resultTop));
 			multipart.addFormField("dumb", "dump");
 
 			String responseString = multipart.finish().get(0);
@@ -451,25 +498,7 @@ public class tryCallingWiseAPI {
 		System.out.println(response.body());
 	}
 
-	private static String encodeFileToBase64Binary(File file) {
-		String encodedfile = null;
-		try {
-			FileInputStream fileInputStreamReader = new FileInputStream(file);
-			byte[] bytes = new byte[(int) file.length()];
-			fileInputStreamReader.read(bytes);
-			encodedfile = new String(Base64.getEncoder().encode(bytes), "UTF-8");
-			fileInputStreamReader.close();
 
-		} catch (FileNotFoundException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-
-		return encodedfile;
-	}
 
 	private static HttpRequest.BodyPublisher buildFormDataFromMap(Map<Object, Object> data) {
 		var builder = new StringBuilder();
