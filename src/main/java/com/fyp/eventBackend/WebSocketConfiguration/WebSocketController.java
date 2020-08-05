@@ -27,6 +27,7 @@ import com.fyp.eventBackend.Database.Ticket;
 import com.fyp.eventBackend.Database.TicketRepository;
 import com.fyp.eventBackend.Database.UserRepository;
 import com.fyp.eventBackend.WebSocketConfiguration.FrontEndRequest.FaceSearchRequest;
+import com.fyp.eventBackend.WebSocketConfiguration.FrontEndRequest.MarkAttendanceRequest;
 import com.fyp.eventBackend.WebSocketConfiguration.FrontEndRequest.RegisterWalkInRequest;
 import com.fyp.eventBackend.WebSocketConfiguration.FrontEndRequest.getObjectTokenRequest;
 import com.fyp.eventBackend.WebSocketConfiguration.Response.GetObjectTokenResponse;
@@ -108,7 +109,12 @@ public class WebSocketController {
 					socketRes.setGender(attendee.getGender());
 					socketRes.setAttendanceStatus(ticket.getAttendanceStatus());
 					socketRes.setTicketId(ticket.getId());
-
+					if(AttendanceStatusEnum.PRESENT.getValue().equals(ticket.getAttendanceStatus())||AttendanceStatusEnum.WALKIN.getValue().equals(ticket.getAttendanceStatus()))
+					{
+						socketRes.setAlreadyRegistered(true);
+					}else {
+						socketRes.setAlreadyRegistered(false);
+					}
 					// draw bounding box
 					byte[] imageBytes = javax.xml.bind.DatatypeConverter.parseBase64Binary(responseBody.getImgString());
 					BufferedImage img = ImageIO.read(new ByteArrayInputStream(imageBytes));
@@ -120,8 +126,6 @@ public class WebSocketController {
 					System.out.println("Returning Message : " + JSONString);
 
 					this.template.convertAndSend("/result/detect", JSONString);
-				} else {
-					socketRes.setName("Unidentified Individual");
 				}
 			}
 
@@ -131,11 +135,14 @@ public class WebSocketController {
 	}
 
 	@MessageMapping("/send/attend")
-	public void markAttendance(String message) {
+	public void markAttendance(String message) throws JsonMappingException, JsonProcessingException {
 
-		Ticket ticket = ticketRepository.findById(Integer.parseInt(message)).get();
-
+		
+		MarkAttendanceRequest responseBody = new ObjectMapper().readerFor(MarkAttendanceRequest.class).readValue(message);
+		
+		Ticket ticket = ticketRepository.findById(responseBody.getTicketId()).get();
 		ticket.setAttendanceStatus(AttendanceStatusEnum.PRESENT.getValue());
+		ticket.setTemperature(responseBody.getTemperature());
 		ticketRepository.save(ticket);
 
 		MarkAttendanceResponse response = new MarkAttendanceResponse();
@@ -169,6 +176,7 @@ public class WebSocketController {
 			DetectFaceBASE64Response APIresponse = CallWiseAPI.detectFaceBASE64(imageBase64String, 3);
 
 			response.setAge(APIresponse.getFaces().get(0).getAttributes().getAge());
+			response.setObjToken(APIresponse.getFaces().get(0).getObjectToken());
 			response.setGender(GenderEnum.getEnumWithAPIValue(APIresponse.getFaces().get(0).getAttributes().getGender())
 					.getValue());
 			response.setImage64bitOriginal(responseBody.getImgString());

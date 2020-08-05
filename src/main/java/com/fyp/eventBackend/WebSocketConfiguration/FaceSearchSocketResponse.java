@@ -11,6 +11,7 @@ public class FaceSearchSocketResponse {
 	private float accuracy;
 	private int ticketId;
 	private String attendanceStatus;
+	private boolean alreadyRegistered;
 	
 	public float getAccuracy() {
 		return accuracy;
@@ -55,12 +56,19 @@ public class FaceSearchSocketResponse {
 	public void setAge(int age) {
 		this.age = age;
 	}
+	public boolean isAlreadyRegistered() {
+		return alreadyRegistered;
+	}
+	public void setAlreadyRegistered(boolean alreadyRegistered) {
+		this.alreadyRegistered = alreadyRegistered;
+	}
 	public String getAttendanceStatus() {
 		return attendanceStatus;
 	}
 	public void setAttendanceStatus(String attendanceStatus) {
 		this.attendanceStatus = attendanceStatus;
 	}
+	
 	
 	
 }

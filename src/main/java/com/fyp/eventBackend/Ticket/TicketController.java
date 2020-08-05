@@ -218,9 +218,18 @@ public class TicketController {
 		Ticket ticket = new Ticket();
 		Attendee attendee = attendeeRepository.findById(newUser.getId()).get();
 		
+		try {
+			CallWiseAPI.addNewFaceToDatabase(event.getLibraryId(), registerWalkInRequest.getObjToken());
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
 		ticket.setAttendee(attendee);
 		ticket.setEvent(event);
-		ticket.setAttendanceStatus(AttendanceStatusEnum.PRESENT.getValue());
+		ticket.setAttendanceStatus(AttendanceStatusEnum.WALKIN.getValue());
+		ticket.setObjectToken(registerWalkInRequest.getObjToken());
+		ticket.setTemperature(registerWalkInRequest.getTemperature());
 		ticketRepository.save(ticket);
 	
 

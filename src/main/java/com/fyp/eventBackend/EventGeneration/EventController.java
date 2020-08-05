@@ -3,6 +3,7 @@ package com.fyp.eventBackend.EventGeneration;
 import java.sql.Timestamp;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
@@ -21,13 +22,22 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fyp.eventBackend.CallWiseAPI;
+import com.fyp.eventBackend.Auth.Request.DeleteUserRequest;
+import com.fyp.eventBackend.Auth.Response.RegisterUserResponse;
+import com.fyp.eventBackend.Common.AttendanceStatusEnum;
+import com.fyp.eventBackend.Common.GenderEnum;
+import com.fyp.eventBackend.Common.ReportJSON;
 import com.fyp.eventBackend.Common.RequestStatusEnum;
 import com.fyp.eventBackend.Common.SerlvetKeyConstant;
 import com.fyp.eventBackend.Database.Event;
 import com.fyp.eventBackend.Database.EventRepository;
+import com.fyp.eventBackend.Database.Ticket;
 import com.fyp.eventBackend.Database.TicketRepository;
 import com.fyp.eventBackend.EventGeneration.Request.CreateEventRequest;
+import com.fyp.eventBackend.EventGeneration.Request.DeleteEventRequest;
 import com.fyp.eventBackend.EventGeneration.Request.EditEventRequest;
 import com.fyp.eventBackend.EventGeneration.Request.EventDetailRequest;
 import com.fyp.eventBackend.EventGeneration.Request.EventListRequest;
@@ -193,7 +203,7 @@ public class EventController {
 	
 	@PostMapping("/event/report")
 	public ResponseEntity<EventReportResponse> GetEventReport(HttpServletRequest httpServletRequest,
-			@RequestHeader Map<String, String> headers, @RequestBody EventReportRequest eventReportRequest) {
+			@RequestHeader Map<String, String> headers, @RequestBody EventReportRequest eventReportRequest) throws JsonProcessingException {
 		String username = (String) httpServletRequest.getAttribute(SerlvetKeyConstant.EMAIL);
 
 
@@ -204,13 +214,92 @@ public class EventController {
 			eventReportResponse.setStatus(RequestStatusEnum.FAILED.getValue());
 			eventReportResponse.setError("No Event Found");
 		} else {
-			eventReportResponse.setStatus(RequestStatusEnum.SUCCESS.getValue());
-			Event.
 			
-
+			eventReportResponse.setStatus(RequestStatusEnum.SUCCESS.getValue());
+			
+			
+			//calculate gender
+			List<ReportJSON> genderData = new ArrayList<ReportJSON>();
+			
+			int maleCount = 0;
+			int femaleCount = 0;
+			List<Ticket> tickets = requestedEvent.getTickets();
+			for(Ticket ticket: tickets) {
+				if(ticket.getAttendee() !=null) {
+					if( GenderEnum.MALE.getDBValue().equals(ticket.getAttendee().getGender())) {
+						maleCount ++;
+					}else {
+						femaleCount ++;
+					}
+				}
+				
+			}
+			
+			genderData.add(new ReportJSON("Male",maleCount));
+			genderData.add(new ReportJSON("Female",femaleCount));
+			
+			eventReportResponse.setGenderData(new ObjectMapper().writeValueAsString(genderData));
+			
+			//calculate attendance
+			List<ReportJSON> attendanceData = new ArrayList<ReportJSON>();
+			
+			int attend = 0;
+			int walkIn = 0;
+			int absent = 0;
+			
+			for(Ticket ticket: tickets) {
+				if(ticket.getAttendanceStatus()!= null) {
+					System.out.println(ticket.getAttendanceStatus());
+					if(ticket.getAttendanceStatus().equals(AttendanceStatusEnum.PRESENT.getValue())) {
+						attend++;
+					}
+					if(ticket.getAttendanceStatus().equals(AttendanceStatusEnum.WALKIN.getValue())) {
+						walkIn++;
+					}
+				}
+				
+			}
+			absent = tickets.size() - walkIn - attend;
+			attendanceData.add(new ReportJSON("Present",attend));
+			attendanceData.add(new ReportJSON("Absent",absent));
+			attendanceData.add(new ReportJSON("Walks In",walkIn));
+			
+			eventReportResponse.setAttendanceData(new ObjectMapper().writeValueAsString(attendanceData));
+			
+			
+			//calculate temperature
+			List<ReportJSON> temperatureData = new ArrayList<ReportJSON>();
+			
+			for(float i = 35.0f ; i < 40.0f ; i = Float.sum(i,0.1f)  ) {
+				temperatureData.add(new ReportJSON(String.valueOf(i),0));
+			}
+			for(Ticket ticket: tickets) {
+				if(ticket.getTemperature() != null) {
+					float temperature = ticket.getTemperature();
+					if(temperature >= 35.0f && temperature <= 40.0f) {
+						int pos = ((int) ((temperature-35.f)/0.1f));
+						ReportJSON datum = temperatureData.get(pos);
+						datum.setValue(datum.getValue()+1);
+					}
+				}
+				
+				
+			}
+			eventReportResponse.setTemperatureData(new ObjectMapper().writeValueAsString(temperatureData));
 		}
 
 		return ResponseEntity.ok(eventReportResponse);
+	}
+	
+	@PostMapping("/event/delete")
+	public ResponseEntity<?> deleteEvent(@RequestBody DeleteEventRequest deleteEventRequest) throws Exception {
+
+		RegisterUserResponse response = new RegisterUserResponse();
+
+		eventRepository.deleteById(deleteEventRequest.getEventId());
+		response.setStatus(RequestStatusEnum.SUCCESS.getValue());
+
+		return ResponseEntity.ok(response);
 	}
 
 }

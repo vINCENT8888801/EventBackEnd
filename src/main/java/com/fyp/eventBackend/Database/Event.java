@@ -44,7 +44,7 @@ public class Event {
 	
 	
 	@JsonIgnore
-	@OneToMany (fetch = FetchType.LAZY, mappedBy = "event")
+	@OneToMany (fetch = FetchType.LAZY, mappedBy = "event", orphanRemoval=true)
     private List<Ticket> tickets = new ArrayList<Ticket>(); 
 
 	public Integer getId() {

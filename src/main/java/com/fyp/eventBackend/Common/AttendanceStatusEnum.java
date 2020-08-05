@@ -2,7 +2,8 @@ package com.fyp.eventBackend.Common;
 
 public enum AttendanceStatusEnum {
 	PRESENT("PRESENT"),
-	ABSENT("ABSENT");
+	ABSENT("ABSENT"),
+	WALKIN("WALKIN");
 	
 	private String value;
 	

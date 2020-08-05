@@ -9,9 +9,10 @@ public class RegisterWalkInRequest {
     private String name;
     private String password;
     private String image64bit;
+    private String objToken;
     private int age;
     private String gender;
-    
+    private float temperature;
     
 	public int getEventId() {
 		return eventId;
@@ -54,6 +55,18 @@ public class RegisterWalkInRequest {
 	}
 	public void setGender(String gender) {
 		this.gender = gender;
+	}
+	public String getObjToken() {
+		return objToken;
+	}
+	public void setObjToken(String objToken) {
+		this.objToken = objToken;
+	}
+	public float getTemperature() {
+		return temperature;
+	}
+	public void setTemperature(float temperature) {
+		this.temperature = temperature;
 	}
 	
 	
