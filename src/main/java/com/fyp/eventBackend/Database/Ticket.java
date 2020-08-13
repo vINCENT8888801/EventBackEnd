@@ -36,7 +36,7 @@ public class Ticket {
 	@Column(unique = true, name = "objectToken")
 	private String objectToken;
 	
-	@Column(unique = true, name = "temperature")
+	@Column(name = "temperature")
 	private Float temperature;
 
 	public Integer getId() {

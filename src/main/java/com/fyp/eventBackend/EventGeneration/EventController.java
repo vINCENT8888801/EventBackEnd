@@ -1,6 +1,7 @@
 package com.fyp.eventBackend.EventGeneration;
 
 import java.sql.Timestamp;
+import java.text.DecimalFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -271,7 +272,9 @@ public class EventController {
 			List<ReportJSON> temperatureData = new ArrayList<ReportJSON>();
 			
 			for(float i = 35.0f ; i < 40.0f ; i = Float.sum(i,0.1f)  ) {
-				temperatureData.add(new ReportJSON(String.valueOf(i),0));
+				DecimalFormat df = new DecimalFormat();
+				df.setMaximumFractionDigits(1);
+				temperatureData.add(new ReportJSON(df.format(i),0));
 			}
 			for(Ticket ticket: tickets) {
 				if(ticket.getTemperature() != null) {

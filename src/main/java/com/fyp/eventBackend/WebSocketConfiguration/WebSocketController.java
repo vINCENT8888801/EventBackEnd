@@ -85,7 +85,7 @@ public class WebSocketController {
 		}
 
 		try {
-			response = CallWiseAPI.faceSearching_BASE64(imageBase64String, responseBody.getId(), 10);
+			response = CallWiseAPI.faceSearching_BASE64(imageBase64String, responseBody.getId(), 1000);
 			if (response.getResults().size() > 0) {
 
 				// assign ObjToken
